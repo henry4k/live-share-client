@@ -1,0 +1,47 @@
+KeySequence Widget
+=================
+
+Here is a KeySequence Widget, similar to QKeySequenceEdit but slightly better
+
+    
+    
+Demonstration
+-------------
+
+A simple demo of the widget is provided in ./keysequence_widget_demo
+
+
+Using it in a project
+---------------------
+
+Include the keysequence_widget.pri file in the QMake project file. 
+All the required files are in ./src
+
+
+Installing as a Qt Designer/Creator Plugin
+------------------------------------------
+
+The sources for the designer plugin are in ./keysequence_widget_designer_plugin
+
+Compile the library and install in
+(Qt SDK)/Tools/QtCreator/bin/designer/
+(Qt SDK)/(Qt Version)/(Toolchain)/plugins/designer
+
+cd keysequence_widget_designer_plugin && qmake && make && make install
+
+(make install may require root access)
+
+
+Latest Version
+--------------
+
+The latest version of the sources can be found at the following locations
+https://github.com/mbasaglia/Qt-KeySequence-Widget
+git://github.com/mbasaglia/Qt-KeySequence-Widget.git
+
+
+License
+-------
+
+LGPLv3+, See COPYING
+Copyright (C) 2013-2014 Mattia Basaglia <mattia.basaglia@gmail.com>
