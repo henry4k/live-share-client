@@ -45,6 +45,12 @@ MainWindow::MainWindow(QWidget *parent) :
         ExecutableValidator *validator = new ExecutableValidator(this);
         ui->ffmpegLineEdit->setValidator(validator);
     }
+
+    connect(ui->imageHotkeyResetButton, &QToolButton::clicked,
+            ui->imageKeySequenceEdit, &KeySequence_Widget::clear);
+
+    connect(ui->videoHotkeyResetButton, &QToolButton::clicked,
+            ui->videoKeySequenceEdit, &KeySequence_Widget::clear);
 }
 
 MainWindow::~MainWindow()
@@ -144,29 +150,14 @@ void MainWindow::on_urlLineEdit_editingFinished()
     //serviceUrl = ui->urlLineEdit->text();
 }
 
-void MainWindow::on_imageKeySequenceEdit_keySequenceChanged(const QKeySequence &keySequence)
+void MainWindow::on_imageKeySequenceEdit_keySequenceChanged(QKeySequence sequence)
 {
-    qWarning("keySequenceChanged");
-    if(keySequence.count() == 1)
-    {
-        QKeySequenceEdit* edit = ui->imageKeySequenceEdit;
-        edit->releaseKeyboard();
-        edit->clearFocus();
-        //edit->setEditFocus(false);
-        qWarning("DENIAL!");
-    }
-}
-
-void MainWindow::on_imageKeySequenceEdit_editingFinished()
-{
-    const QKeySequence sequence = ui->imageKeySequenceEdit->keySequence();
     if(!imageHotkey->setShortcut(sequence, true))
         qWarning("Can't set image hotkey.");
 }
 
-void MainWindow::on_videoKeySequenceEdit_editingFinished()
+void MainWindow::on_videoKeySequenceEdit_keySequenceChanged(QKeySequence sequence)
 {
-    const QKeySequence sequence = ui->videoKeySequenceEdit->keySequence();
     if(!videoHotkey->setShortcut(sequence, true))
         qWarning("Can't set video hotkey.");
 }

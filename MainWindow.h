@@ -25,9 +25,8 @@ private slots:
     void _on_videoHotkey_activated();
     void _on_recorder_finished(QFile *outputFile);
     void on_urlLineEdit_editingFinished();
-    void on_imageKeySequenceEdit_keySequenceChanged(const QKeySequence &keySequence);
-    void on_imageKeySequenceEdit_editingFinished();
-    void on_videoKeySequenceEdit_editingFinished();
+    void on_imageKeySequenceEdit_keySequenceChanged(QKeySequence sequence);
+    void on_videoKeySequenceEdit_keySequenceChanged(QKeySequence sequence);
     void on_ffmpegLineEdit_editingFinished();
     void on_ffmpegFileDialogButton_clicked();
 
