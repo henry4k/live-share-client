@@ -2,20 +2,21 @@
 #define RECORDER_H
 
 #include <QString>
-#include <QStringList>
 #include <QObject>
 #include <QProcess>
-#include <QFile>
 #include "WindowInfo.h"
 
+class QFile;
+class QStringList;
 class QIODevice;
+class QSettings;
 
 class Recorder : public QObject
 {
     Q_OBJECT
 
-//    Q_PROPERTY(QString ffmpegLocation
-//               WRITE setFfmpegLocation)
+//    Q_PROPERTY(QString ffmpegExecutable
+//               WRITE setFfmpegExecutable)
 //
 //    Q_PROPERY(WindowInfo windowInfo
 //              WRITE setWindowInfo)
@@ -23,8 +24,8 @@ class Recorder : public QObject
 //    Q_PROPERY(int maxEdgeLength
 //              WRITE setMaxEdgeLength)
 //
-//    Q_PROPERY(float frameRate
-//              WRITE setFrameRate)
+//    Q_PROPERY(double videoFrameRate
+//              WRITE setVideoFrameRate)
 //
 //    Q_PROPERTY(RecordType recordType
 //               READ recordType
@@ -40,15 +41,17 @@ public:
         Video
     };
 
-    explicit Recorder(QObject *parent = Q_NULLPTR);
+    explicit Recorder(QObject *parent = nullptr);
     ~Recorder();
 
-    void setFfmpegLocation(const QString &location);
-    void setWindowInfo(const WindowInfo &info);
-    void setMaxEdgeLength(int length);
-    void setFrameRate(float rate);
-    void setRecordType(RecordType type);
+    void readSettings(QSettings &settings);
+    void writeSettings(QSettings &settings);
 
+    QString ffmpegExecutable() const;
+    int maxImageEdgeLength() const;
+    int maxVideoEdgeLength() const;
+    double videoFrameRate() const;
+    int maxVideoLength() const;
     RecordType recordType() const;
     QString mimeType() const;
 
@@ -58,6 +61,21 @@ public:
 
 signals:
     void finished(QFile *outputFile);
+
+    void ffmpegExecutableChanged(const QString &executable);
+    void maxImageEdgeLengthChanged(int length);
+    void maxVideoEdgeLengthChanged(int length);
+    void videoFrameRateChanged(double rate);
+    void maxVideoLengthChanged(int length);
+
+public slots:
+    void setWindowInfo(const WindowInfo &info);
+    void setFfmpegExecutable(const QString &executable);
+    void setMaxImageEdgeLength(int length);
+    void setMaxVideoEdgeLength(int length);
+    void setVideoFrameRate(double rate);
+    void setMaxVideoLength(int length);
+    void setRecordType(RecordType type);
 
 private slots:
     void process_errorOccurred(QProcess::ProcessError error);
@@ -73,8 +91,10 @@ private:
     void createOutputFile();
 
     WindowInfo windowInfo;
-    int maxEdgeLength;
-    float frameRate;
+    int _maxImageEdgeLength;
+    int _maxVideoEdgeLength;
+    double _videoFrameRate;
+    int _maxVideoLength;
     RecordType _recordType;
     QProcess *process;
     QFile *outputFile;

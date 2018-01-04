@@ -6,30 +6,45 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>759</width>
-    <height>637</height>
+    <width>570</width>
+    <height>399</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>live-share</string>
   </property>
   <widget class="QWidget" name="centralWidget">
-   <property name="minimumSize">
-    <size>
-     <width>400</width>
-     <height>300</height>
-    </size>
-   </property>
    <layout class="QVBoxLayout" name="verticalLayout_2">
+    <property name="spacing">
+     <number>0</number>
+    </property>
+    <property name="leftMargin">
+     <number>0</number>
+    </property>
+    <property name="topMargin">
+     <number>0</number>
+    </property>
+    <property name="rightMargin">
+     <number>0</number>
+    </property>
+    <property name="bottomMargin">
+     <number>0</number>
+    </property>
     <item>
      <widget class="QTabWidget" name="tabWidget">
       <property name="currentIndex">
-       <number>1</number>
+       <number>0</number>
       </property>
       <property name="documentMode">
        <bool>true</bool>
       </property>
       <widget class="QWidget" name="tabWidgetPage1">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
        <attribute name="icon">
         <iconset theme="view-refresh">
          <normaloff>.</normaloff>.</iconset>
@@ -67,11 +82,39 @@
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>444</width>
-             <height>48</height>
+             <width>558</width>
+             <height>309</height>
             </rect>
            </property>
-           <layout class="QGridLayout" name="gridLayout_2" columnstretch="0,1,0">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <layout class="QGridLayout" name="gridLayout_2" columnstretch="0,0,0">
+            <property name="leftMargin">
+             <number>0</number>
+            </property>
+            <property name="rightMargin">
+             <number>0</number>
+            </property>
+            <item row="0" column="2">
+             <widget class="QDialogButtonBox" name="buttonBox">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="standardButtons">
+               <set>QDialogButtonBox::Cancel</set>
+              </property>
+              <property name="centerButtons">
+               <bool>false</bool>
+              </property>
+             </widget>
+            </item>
             <item row="0" column="1">
              <widget class="QProgressBar" name="progressBar">
               <property name="value">
@@ -86,22 +129,6 @@
               </property>
              </widget>
             </item>
-            <item row="0" column="2">
-             <widget class="QDialogButtonBox" name="buttonBox">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-              <property name="standardButtons">
-               <set>QDialogButtonBox::Cancel</set>
-              </property>
-              <property name="centerButtons">
-               <bool>false</bool>
-              </property>
-             </widget>
-            </item>
            </layout>
           </widget>
          </widget>
@@ -110,7 +137,7 @@
       </widget>
       <widget class="QWidget" name="tabWidgetPage2">
        <property name="sizePolicy">
-        <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+        <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
          <horstretch>0</horstretch>
          <verstretch>0</verstretch>
         </sizepolicy>
@@ -138,6 +165,14 @@
            <bool>true</bool>
           </property>
           <widget class="QWidget" name="scrollAreaWidgetContents">
+           <property name="geometry">
+            <rect>
+             <x>0</x>
+             <y>0</y>
+             <width>558</width>
+             <height>338</height>
+            </rect>
+           </property>
            <property name="sizePolicy">
             <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
              <horstretch>0</horstretch>
@@ -145,6 +180,12 @@
             </sizepolicy>
            </property>
            <layout class="QFormLayout" name="formLayout">
+            <property name="leftMargin">
+             <number>0</number>
+            </property>
+            <property name="rightMargin">
+             <number>0</number>
+            </property>
             <item row="0" column="0">
              <widget class="QLabel" name="urlLabel">
               <property name="text">
@@ -325,12 +366,12 @@
             <item row="7" column="0">
              <widget class="QLabel" name="label_5">
               <property name="text">
-               <string>Max. Video Time</string>
+               <string>Max. Video Length</string>
               </property>
              </widget>
             </item>
             <item row="7" column="1">
-             <widget class="QSpinBox" name="maxVideoTimeSpinBox">
+             <widget class="QSpinBox" name="maxVideoLengthSpinBox">
               <property name="correctionMode">
                <enum>QAbstractSpinBox::CorrectToNearestValue</enum>
               </property>

@@ -2,14 +2,25 @@
 #include <QCoreApplication> // applicationName
 #include <QTime> // currentTime
 #include <QDir> // temp
+#include <QFile>
+#include <QStringList>
+#include <QSettings>
 #include <string.h> // memset
 #include "Recorder.h"
 
 
+static QString DefaultFfmpegExecutable = "ffmpeg";
+static int DefaultMaxImageEdgeLength = 800;
+static int DefaultMaxVideoEdgeLength = 400;
+static double DefaultVideoFrameRate = 25;
+static int DefaultMaxVideoLength = 30;
+
 Recorder::Recorder(QObject *parent) :
     QObject(parent),
-    maxEdgeLength(0),
-    frameRate(0),
+    _maxImageEdgeLength(0),
+    _maxVideoEdgeLength(0),
+    _videoFrameRate(0),
+    _maxVideoLength(0),
     _recordType(Image),
     process(new QProcess(this)),
     outputFile(nullptr)
@@ -30,30 +41,56 @@ Recorder::~Recorder()
         removeOutputFile();
 }
 
-void Recorder::setFfmpegLocation(const QString &location)
+void Recorder::readSettings(QSettings &settings)
 {
-    qWarning("setFfmpegLocation %s", qUtf8Printable(location));
-    process->setProgram(location);
+    setFfmpegExecutable(settings.value("ffmpegExecutable", DefaultFfmpegExecutable).value<QString>());
+    setMaxImageEdgeLength(settings.value("maxImageEdgeLength", DefaultMaxImageEdgeLength).value<int>());
+    setMaxVideoEdgeLength(settings.value("maxVideoEdgeLength", DefaultMaxVideoEdgeLength).value<int>());
+    setVideoFrameRate(settings.value("videoFrameRate", DefaultVideoFrameRate).value<double>());
+    setMaxVideoLength(settings.value("maxVideoLength", DefaultMaxVideoLength).value<int>());
+
+    emit ffmpegExecutableChanged(ffmpegExecutable());
+    emit maxImageEdgeLengthChanged(maxImageEdgeLength());
+    emit maxVideoEdgeLengthChanged(maxVideoEdgeLength());
+    emit videoFrameRateChanged(videoFrameRate());
+    emit maxVideoLengthChanged(maxVideoLength());
 }
 
-void Recorder::setWindowInfo(const WindowInfo &info)
+void Recorder::writeSettings(QSettings &settings)
 {
-    windowInfo = info;
+    settings.setValue("ffmpegExecutable", ffmpegExecutable());
+    settings.setValue("maxImageEdgeLength", maxImageEdgeLength());
+    settings.setValue("maxVideoEdgeLength", maxVideoEdgeLength());
+    settings.setValue("videoFrameRate", videoFrameRate());
+    settings.setValue("maxVideoLength", maxVideoLength());
 }
 
-void Recorder::setMaxEdgeLength(int length)
+
+// ---- Getters ----
+
+QString Recorder::ffmpegExecutable() const
 {
-    maxEdgeLength = length;
+    return process->program();
 }
 
-void Recorder::setFrameRate(float rate)
+int Recorder::maxImageEdgeLength() const
 {
-    frameRate = rate;
+    return _maxImageEdgeLength;
 }
 
-void Recorder::setRecordType(RecordType type)
+int Recorder::maxVideoEdgeLength() const
 {
-    _recordType = type;
+    return _maxVideoEdgeLength;
+}
+
+double Recorder::videoFrameRate() const
+{
+    return _videoFrameRate;
+}
+
+int Recorder::maxVideoLength() const
+{
+    return _maxVideoLength;
 }
 
 Recorder::RecordType Recorder::recordType() const
@@ -71,16 +108,58 @@ QString Recorder::mimeType() const
     return "";
 }
 
+
+// ---- Setters ----
+
+void Recorder::setWindowInfo(const WindowInfo &info)
+{
+    windowInfo = info;
+}
+
+void Recorder::setFfmpegExecutable(const QString &executable)
+{
+    qWarning("setFfmpegExecutable %s", qUtf8Printable(executable));
+    process->setProgram(executable);
+}
+
+void Recorder::setMaxImageEdgeLength(int length)
+{
+    _maxImageEdgeLength = length;
+}
+
+void Recorder::setMaxVideoEdgeLength(int length)
+{
+    _maxVideoEdgeLength = length;
+}
+
+void Recorder::setVideoFrameRate(double rate)
+{
+    _videoFrameRate = rate;
+}
+
+void Recorder::setMaxVideoLength(int length)
+{
+    _maxVideoLength = length;
+}
+
+void Recorder::setRecordType(RecordType type)
+{
+    _recordType = type;
+}
+
+
+// ---- Program Arguments ----
+
 bool Recorder::appendInputArguments(QStringList &arguments)
 {
     Q_ASSERT(windowInfo.w > 0);
     Q_ASSERT(windowInfo.h > 0);
-    Q_ASSERT(frameRate > 0);
+    Q_ASSERT(_videoFrameRate > 0);
 
     const QString x = QString().setNum(windowInfo.x);
     const QString y = QString().setNum(windowInfo.y);
     const QString inputSize = QString("%1x%2").arg(windowInfo.w).arg(windowInfo.h);
-    const QString frameRateStr = QString().setNum(frameRate);
+    const QString videoFrameRateStr = QString().setNum(_videoFrameRate);
 
     bool drawMouse = false;
     bool showRegion = false;
@@ -99,7 +178,7 @@ bool Recorder::appendInputArguments(QStringList &arguments)
     arguments << "-show_region" << QString().setNum((int)showRegion);
 
     arguments << "-video_size" << inputSize;
-    arguments << "-framerate" << frameRateStr;
+    arguments << "-framerate" << videoFrameRateStr;
 
 #if defined(_WIN32)
     arguments << "-i";
@@ -142,6 +221,18 @@ void Recorder::getOutputSize(int *outputWidth, int *outputHeight)
 {
     Q_ASSERT(windowInfo.w > 0);
     Q_ASSERT(windowInfo.h > 0);
+
+    int maxEdgeLength;
+    switch(_recordType)
+    {
+    case Image:
+        maxEdgeLength = _maxImageEdgeLength;
+        break;
+
+    case Video:
+        maxEdgeLength = _maxVideoEdgeLength;
+        break;
+    }
     Q_ASSERT(maxEdgeLength > 0);
 
     const int inputWidth  = windowInfo.w;
@@ -254,7 +345,9 @@ void Recorder::start()
     createOutputFile();
 
     QStringList arguments;
+#if !defined(QT_NO_WARNING_OUTPUT)
     arguments << "-loglevel" << "warning";
+#endif
     if(!appendInputArguments(arguments)  ||
        !appendOutputArguments(arguments) ||
        !appendOutputSizeArguments(arguments))
@@ -267,7 +360,8 @@ void Recorder::start()
     qWarning("%s %s", qUtf8Printable(process->program()), qUtf8Printable(arguments.join(" ")));
 
     process->setArguments(arguments);
-    process->start(QIODevice::ReadWrite);
+    process->start(QIODevice::WriteOnly);
+    //process->start(QIODevice::ReadWrite);
 }
 
 void Recorder::stop()

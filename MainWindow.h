@@ -5,8 +5,8 @@
 #include <QUrl>
 #include <QMainWindow>
 #include <QNetworkAccessManager>
-#include <QHotkey>
-#include "Recorder.h"
+
+class RecordingManager;
 
 namespace Ui {
 class MainWindow;
@@ -17,30 +17,27 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 
 public:
-    explicit MainWindow(QWidget *parent = 0);
+    explicit MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
 private slots:
-    void _on_imageHotkey_activated();
-    void _on_videoHotkey_activated();
-    void _on_recorder_finished(QFile *outputFile);
     void on_urlLineEdit_editingFinished();
-    void on_imageKeySequenceEdit_keySequenceChanged(QKeySequence sequence);
-    void on_videoKeySequenceEdit_keySequenceChanged(QKeySequence sequence);
     void on_ffmpegLineEdit_editingFinished();
     void on_ffmpegFileDialogButton_clicked();
 
+protected:
+    void closeEvent(QCloseEvent *event) override;
+
 private:
-    void startRecording(Recorder::RecordType recordType);
+    void readSettings();
+    void writeSettings();
 
     Ui::MainWindow *ui;
 
     //QNetworkAccessManager* networkAccessManager;
     //QFile *uploadedFile;
 
-    QHotkey *imageHotkey;
-    QHotkey *videoHotkey;
-    Recorder *recorder;
+    RecordingManager *recordingManager;
 };
 
 #endif // MAINWINDOW_H

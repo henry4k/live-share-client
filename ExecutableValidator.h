@@ -8,7 +8,7 @@ class ExecutableValidator : public QValidator
     Q_OBJECT
 
 public:
-    explicit ExecutableValidator(QWidget *parent = Q_NULLPTR);
+    explicit ExecutableValidator(QWidget *parent = nullptr);
     ~ExecutableValidator();
 
     QValidator::State validate(QString &, int &) const Q_DECL_OVERRIDE;
