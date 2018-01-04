@@ -12,15 +12,15 @@
 #include "WindowInfo.h"
 #include "RecordingManager.h"
 #include "Recorder.h"
+#include "UploadManager.h"
 #include "MainWindow.h"
 #include "ui_MainWindow.h"
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow),
-    recordingManager(new RecordingManager(this))
-    //networkAccessManager(new QNetworkAccessManager(this)),
-    //uploadedFile(nullptr),
+    recordingManager(new RecordingManager(this)),
+    uploadManager(new UploadManager(this))
 {
     ui->setupUi(this);
 
@@ -32,6 +32,12 @@ MainWindow::MainWindow(QWidget *parent) :
         const QRegularExpression regExp("https?:\\/\\/[^\\s]*[^\\/]");
         QValidator *validator = new QRegularExpressionValidator(regExp, this);
         ui->urlLineEdit->setValidator(validator);
+    }
+
+    {
+        const QRegularExpression regExp("[A-Za-z0-9_. -]*");
+        QValidator *validator = new QRegularExpressionValidator(regExp, this);
+        ui->userNameLineEdit->setValidator(validator);
     }
 
     {
@@ -81,6 +87,12 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(recorder, &Recorder::maxVideoLengthChanged,
             ui->maxVideoLengthSpinBox, &QSpinBox::setValue);
 
+    // UploadManager --{changed}-> Widget
+    connect(uploadManager, &UploadManager::serviceUrlChanged,
+            ui->urlLineEdit, &QLineEdit::setText);
+    connect(uploadManager, &UploadManager::userNameChanged,
+            ui->userNameLineEdit, &QLineEdit::setText);
+
     const QSignalBlocker imageKeySequenceBlocker(ui->imageKeySequenceEdit);
     const QSignalBlocker videoKeySequenceBlocker(ui->videoKeySequenceEdit);
     const QSignalBlocker ffmpegExecutableBlocker(ui->ffmpegLineEdit);
@@ -88,6 +100,8 @@ MainWindow::MainWindow(QWidget *parent) :
     const QSignalBlocker maxVideoEdgeLengthBlocker(ui->maxVideoEdgeLengthSpinBox);
     const QSignalBlocker videoFrameRateBlocker(ui->frameRateDoubleSpinBox);
     const QSignalBlocker maxVideoLengthBlocker(ui->maxVideoLengthSpinBox);
+    const QSignalBlocker serviceUrlBlocker(ui->urlLineEdit);
+    const QSignalBlocker userNameBlocker(ui->userNameLineEdit);
     readSettings();
 }
 
@@ -104,6 +118,10 @@ void MainWindow::readSettings()
     settings.beginGroup("recording");
     recordingManager->readSettings(settings);
     settings.endGroup();
+
+    settings.beginGroup("upload");
+    uploadManager->readSettings(settings);
+    settings.endGroup();
 }
 
 void MainWindow::writeSettings()
@@ -114,6 +132,10 @@ void MainWindow::writeSettings()
     settings.beginGroup("recording");
     recordingManager->writeSettings(settings);
     settings.endGroup();
+
+    settings.beginGroup("upload");
+    uploadManager->writeSettings(settings);
+    settings.endGroup();
 }
 
 void MainWindow::closeEvent(QCloseEvent *event)
@@ -122,37 +144,14 @@ void MainWindow::closeEvent(QCloseEvent *event)
     event->accept();
 }
 
-/*
-void MainWindow::uploadFile(const QString& fileName)
-{
-    Q_ASSERT(uploadedFile == nullptr);
-    uploadedFile = new QFile(fileName);
-    uploadedFile->open(QIODevice::ReadOnly);
-
-    const QString url = serviceUrl + QString("/user/") + uploadedFile->fileName();
-
-    QMimeDatabase mimeDb;
-    const QMimeType mimeType = mimeDb.mimeTypeForFile(fileName);
-
-    QNetworkRequest request(url);
-    request.setHeader(QNetworkRequest::ContentTypeHeader, mimeType.name());
-
-    QNetworkReply* reply = networkAccessManager->post(request, uploadedFile);
-    reply->deleteLater();
-
-    connect(reply, QOverload<QNetworkReply::NetworkError>::of(&QNetworkReply::error),
-        [=](QNetworkReply::NetworkError code){});
-
-    connect(reply, &QNetworkReply::uploadProgress,
-            this, [this](qint64 sent, qint64 total){ printf("upload %lld/%lld\n", sent, total); });
-    connect(reply, &QNetworkReply::finished,
-            this, [this](){ printf("upload complete\n"); });
-}
-*/
-
 void MainWindow::on_urlLineEdit_editingFinished()
 {
-    //serviceUrl = ui->urlLineEdit->text();
+    uploadManager->setServiceUrl(ui->urlLineEdit->text());
+}
+
+void MainWindow::on_userNameLineEdit_editingFinished()
+{
+    uploadManager->setUserName(ui->userNameLineEdit->text());
 }
 
 void MainWindow::on_ffmpegLineEdit_editingFinished()

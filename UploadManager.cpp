@@ -30,7 +30,7 @@ void UploadManager::readSettings(QSettings &settings)
 void UploadManager::writeSettings(QSettings &settings)
 {
     settings.setValue("serviceUrl", serviceUrl());
-    settings.setValue("username", userName());
+    settings.setValue("userName", userName());
 }
 
 

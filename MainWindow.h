@@ -7,6 +7,7 @@
 #include <QNetworkAccessManager>
 
 class RecordingManager;
+class UploadManager;
 
 namespace Ui {
 class MainWindow;
@@ -22,6 +23,7 @@ public:
 
 private slots:
     void on_urlLineEdit_editingFinished();
+    void on_userNameLineEdit_editingFinished();
     void on_ffmpegLineEdit_editingFinished();
     void on_ffmpegFileDialogButton_clicked();
 
@@ -34,10 +36,8 @@ private:
 
     Ui::MainWindow *ui;
 
-    //QNetworkAccessManager* networkAccessManager;
-    //QFile *uploadedFile;
-
     RecordingManager *recordingManager;
+    UploadManager *uploadManager;
 };
 
 #endif // MAINWINDOW_H
