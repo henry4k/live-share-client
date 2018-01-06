@@ -17,7 +17,8 @@ public:
     {
         Ready,
         Active,
-        Completed
+        Completed,
+        Failed
     };
 
     Upload(QFile *file,
@@ -29,9 +30,10 @@ public:
     QFile *file() const;
     const QString &mimeType() const;
     const QString &category() const;
-    const State state() const;
-    const qint64 totalBytes() const;
-    const qint64 sentBytes() const;
+    State state() const;
+    qint64 totalBytes() const;
+    qint64 sentBytes() const;
+    const QString &errorString() const;
 
 signals:
     void stateChanged(State state);
@@ -53,6 +55,7 @@ private:
     qint64 _totalBytes;
     qint64 _sentBytes;
     QNetworkReply *networkReply;
+    QString _errorString;
 };
 
 #endif

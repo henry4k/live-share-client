@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>587</width>
-    <height>488</height>
+    <width>440</width>
+    <height>613</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -33,12 +33,12 @@
     <item>
      <widget class="QTabWidget" name="tabWidget">
       <property name="currentIndex">
-       <number>1</number>
+       <number>0</number>
       </property>
       <property name="documentMode">
        <bool>true</bool>
       </property>
-      <widget class="QWidget" name="tabWidgetPage1">
+      <widget class="QWidget" name="uploadsTabPage">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
          <horstretch>0</horstretch>
@@ -61,81 +61,11 @@
          </widget>
         </item>
         <item>
-         <widget class="QScrollArea" name="scrollArea_2">
-          <property name="frameShape">
-           <enum>QFrame::NoFrame</enum>
-          </property>
-          <property name="frameShadow">
-           <enum>QFrame::Plain</enum>
-          </property>
-          <property name="horizontalScrollBarPolicy">
-           <enum>Qt::ScrollBarAlwaysOff</enum>
-          </property>
-          <property name="widgetResizable">
-           <bool>true</bool>
-          </property>
-          <property name="alignment">
-           <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
-          </property>
-          <widget class="QWidget" name="scrollAreaWidgetContents_2">
-           <property name="geometry">
-            <rect>
-             <x>0</x>
-             <y>0</y>
-             <width>575</width>
-             <height>398</height>
-            </rect>
-           </property>
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <layout class="QGridLayout" name="gridLayout_2" columnstretch="0,0,0">
-            <property name="leftMargin">
-             <number>0</number>
-            </property>
-            <property name="rightMargin">
-             <number>0</number>
-            </property>
-            <item row="0" column="2">
-             <widget class="QDialogButtonBox" name="buttonBox">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-              <property name="standardButtons">
-               <set>QDialogButtonBox::Cancel</set>
-              </property>
-              <property name="centerButtons">
-               <bool>false</bool>
-              </property>
-             </widget>
-            </item>
-            <item row="0" column="1">
-             <widget class="QProgressBar" name="progressBar">
-              <property name="value">
-               <number>24</number>
-              </property>
-             </widget>
-            </item>
-            <item row="0" column="0">
-             <widget class="QLabel" name="label">
-              <property name="text">
-               <string>henry/ksp/2017-12-29_0001.png</string>
-              </property>
-             </widget>
-            </item>
-           </layout>
-          </widget>
-         </widget>
+         <widget class="UploadQueueWidget" name="uploadQueueWidget"/>
         </item>
        </layout>
       </widget>
-      <widget class="QWidget" name="tabWidgetPage2">
+      <widget class="QWidget" name="preferencesTabPage">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
          <horstretch>0</horstretch>
@@ -147,7 +77,7 @@
          <normaloff>.</normaloff>.</iconset>
        </attribute>
        <attribute name="title">
-        <string>Settings</string>
+        <string>Preferences</string>
        </attribute>
        <layout class="QVBoxLayout" name="verticalLayout">
         <item>
@@ -169,8 +99,8 @@
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>575</width>
-             <height>378</height>
+             <width>428</width>
+             <height>510</height>
             </rect>
            </property>
            <property name="sizePolicy">
@@ -179,228 +109,255 @@
              <verstretch>0</verstretch>
             </sizepolicy>
            </property>
-           <layout class="QFormLayout" name="formLayout">
+           <layout class="QVBoxLayout" name="verticalLayout_4">
             <property name="leftMargin">
              <number>0</number>
             </property>
             <property name="rightMargin">
              <number>0</number>
             </property>
-            <item row="0" column="0">
-             <widget class="QLabel" name="urlLabel">
-              <property name="text">
-               <string>Service URL</string>
+            <item>
+             <widget class="QGroupBox" name="groupBox">
+              <property name="title">
+               <string>Server</string>
               </property>
+              <layout class="QFormLayout" name="formLayout">
+               <item row="0" column="0">
+                <widget class="QLabel" name="urlLabel">
+                 <property name="text">
+                  <string>Service URL</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="0" column="1">
+                <widget class="QLineEdit" name="urlLineEdit">
+                 <property name="placeholderText">
+                  <string>Enter base URL of live-share service</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="0">
+                <widget class="QLabel" name="label_6">
+                 <property name="text">
+                  <string>User Name</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="1">
+                <widget class="QLineEdit" name="userNameLineEdit"/>
+               </item>
+              </layout>
              </widget>
             </item>
-            <item row="0" column="1">
-             <widget class="QLineEdit" name="urlLineEdit">
-              <property name="placeholderText">
-               <string>Enter base URL of live-share service</string>
+            <item>
+             <widget class="QGroupBox" name="groupBox_2">
+              <property name="title">
+               <string>Hotkeys</string>
               </property>
+              <layout class="QFormLayout" name="formLayout_2">
+               <item row="0" column="0">
+                <widget class="QLabel" name="imageLabel">
+                 <property name="text">
+                  <string>Image Hotkey</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="0" column="1">
+                <layout class="QHBoxLayout" name="horizontalLayout_3">
+                 <item>
+                  <widget class="KeySequence_Widget" name="imageKeySequenceEdit"/>
+                 </item>
+                 <item>
+                  <widget class="QToolButton" name="imageHotkeyResetButton">
+                   <property name="text">
+                    <string>Clear</string>
+                   </property>
+                   <property name="icon">
+                    <iconset theme="edit-clear">
+                     <normaloff>.</normaloff>.</iconset>
+                   </property>
+                   <property name="toolButtonStyle">
+                    <enum>Qt::ToolButtonFollowStyle</enum>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </item>
+               <item row="1" column="0">
+                <widget class="QLabel" name="videoLabel">
+                 <property name="text">
+                  <string>Video Hotkey</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="1">
+                <layout class="QHBoxLayout" name="horizontalLayout">
+                 <item>
+                  <widget class="KeySequence_Widget" name="videoKeySequenceEdit"/>
+                 </item>
+                 <item>
+                  <widget class="QToolButton" name="videoHotkeyResetButton">
+                   <property name="text">
+                    <string>Clear</string>
+                   </property>
+                   <property name="icon">
+                    <iconset theme="edit-clear">
+                     <normaloff>.</normaloff>.</iconset>
+                   </property>
+                   <property name="toolButtonStyle">
+                    <enum>Qt::ToolButtonFollowStyle</enum>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </item>
+              </layout>
              </widget>
             </item>
-            <item row="2" column="0">
-             <widget class="QLabel" name="imageLabel">
-              <property name="text">
-               <string>Image Hotkey</string>
+            <item>
+             <widget class="QGroupBox" name="groupBox_3">
+              <property name="title">
+               <string>Recording</string>
               </property>
+              <layout class="QFormLayout" name="formLayout_3">
+               <item row="4" column="0">
+                <widget class="QLabel" name="ffmpegLabel">
+                 <property name="text">
+                  <string>FFmpeg Executable</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="4" column="1">
+                <layout class="QHBoxLayout" name="horizontalLayout_2">
+                 <item>
+                  <widget class="QLineEdit" name="ffmpegLineEdit">
+                   <property name="placeholderText">
+                    <string>ffmpeg</string>
+                   </property>
+                   <property name="clearButtonEnabled">
+                    <bool>true</bool>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QToolButton" name="ffmpegFileDialogButton">
+                   <property name="text">
+                    <string>Select</string>
+                   </property>
+                   <property name="icon">
+                    <iconset theme="document-open">
+                     <normaloff>.</normaloff>.</iconset>
+                   </property>
+                   <property name="toolButtonStyle">
+                    <enum>Qt::ToolButtonFollowStyle</enum>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </item>
+               <item row="0" column="0">
+                <widget class="QLabel" name="label_2">
+                 <property name="text">
+                  <string>Max. Image Edge Length</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="0" column="1">
+                <widget class="QSpinBox" name="maxImageEdgeLengthSpinBox">
+                 <property name="correctionMode">
+                  <enum>QAbstractSpinBox::CorrectToNearestValue</enum>
+                 </property>
+                 <property name="suffix">
+                  <string>px</string>
+                 </property>
+                 <property name="minimum">
+                  <number>400</number>
+                 </property>
+                 <property name="maximum">
+                  <number>4000</number>
+                 </property>
+                 <property name="value">
+                  <number>800</number>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="0">
+                <widget class="QLabel" name="label_3">
+                 <property name="text">
+                  <string>Max. Video Edge Length</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="1">
+                <widget class="QSpinBox" name="maxVideoEdgeLengthSpinBox">
+                 <property name="correctionMode">
+                  <enum>QAbstractSpinBox::CorrectToNearestValue</enum>
+                 </property>
+                 <property name="suffix">
+                  <string>px</string>
+                 </property>
+                 <property name="minimum">
+                  <number>40</number>
+                 </property>
+                 <property name="maximum">
+                  <number>4000</number>
+                 </property>
+                </widget>
+               </item>
+               <item row="2" column="0">
+                <widget class="QLabel" name="label_4">
+                 <property name="text">
+                  <string>Video Frame Rate</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="2" column="1">
+                <widget class="QDoubleSpinBox" name="frameRateDoubleSpinBox">
+                 <property name="suffix">
+                  <string>Hz</string>
+                 </property>
+                 <property name="minimum">
+                  <double>1.000000000000000</double>
+                 </property>
+                 <property name="maximum">
+                  <double>60.000000000000000</double>
+                 </property>
+                 <property name="value">
+                  <double>25.000000000000000</double>
+                 </property>
+                </widget>
+               </item>
+               <item row="3" column="0">
+                <widget class="QLabel" name="label_5">
+                 <property name="text">
+                  <string>Max. Video Length</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="3" column="1">
+                <widget class="QSpinBox" name="maxVideoLengthSpinBox">
+                 <property name="correctionMode">
+                  <enum>QAbstractSpinBox::CorrectToNearestValue</enum>
+                 </property>
+                 <property name="suffix">
+                  <string>s</string>
+                 </property>
+                 <property name="minimum">
+                  <number>1</number>
+                 </property>
+                 <property name="maximum">
+                  <number>300</number>
+                 </property>
+                 <property name="value">
+                  <number>30</number>
+                 </property>
+                 <property name="displayIntegerBase">
+                  <number>10</number>
+                 </property>
+                </widget>
+               </item>
+              </layout>
              </widget>
-            </item>
-            <item row="2" column="1">
-             <layout class="QHBoxLayout" name="horizontalLayout_3">
-              <item>
-               <widget class="KeySequence_Widget" name="imageKeySequenceEdit"/>
-              </item>
-              <item>
-               <widget class="QToolButton" name="imageHotkeyResetButton">
-                <property name="text">
-                 <string>Clear</string>
-                </property>
-                <property name="icon">
-                 <iconset theme="edit-clear">
-                  <normaloff>.</normaloff>.</iconset>
-                </property>
-                <property name="toolButtonStyle">
-                 <enum>Qt::ToolButtonFollowStyle</enum>
-                </property>
-               </widget>
-              </item>
-             </layout>
-            </item>
-            <item row="3" column="0">
-             <widget class="QLabel" name="videoLabel">
-              <property name="text">
-               <string>Video Hotkey</string>
-              </property>
-             </widget>
-            </item>
-            <item row="3" column="1">
-             <layout class="QHBoxLayout" name="horizontalLayout">
-              <item>
-               <widget class="KeySequence_Widget" name="videoKeySequenceEdit"/>
-              </item>
-              <item>
-               <widget class="QToolButton" name="videoHotkeyResetButton">
-                <property name="text">
-                 <string>Clear</string>
-                </property>
-                <property name="icon">
-                 <iconset theme="edit-clear">
-                  <normaloff>.</normaloff>.</iconset>
-                </property>
-                <property name="toolButtonStyle">
-                 <enum>Qt::ToolButtonFollowStyle</enum>
-                </property>
-               </widget>
-              </item>
-             </layout>
-            </item>
-            <item row="4" column="0">
-             <widget class="QLabel" name="ffmpegLabel">
-              <property name="text">
-               <string>FFmpeg Executable</string>
-              </property>
-             </widget>
-            </item>
-            <item row="4" column="1">
-             <layout class="QHBoxLayout" name="horizontalLayout_2">
-              <item>
-               <widget class="QLineEdit" name="ffmpegLineEdit">
-                <property name="placeholderText">
-                 <string>ffmpeg</string>
-                </property>
-                <property name="clearButtonEnabled">
-                 <bool>true</bool>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QToolButton" name="ffmpegFileDialogButton">
-                <property name="text">
-                 <string>Select</string>
-                </property>
-                <property name="icon">
-                 <iconset theme="document-open">
-                  <normaloff>.</normaloff>.</iconset>
-                </property>
-                <property name="toolButtonStyle">
-                 <enum>Qt::ToolButtonFollowStyle</enum>
-                </property>
-               </widget>
-              </item>
-             </layout>
-            </item>
-            <item row="5" column="0">
-             <widget class="QLabel" name="label_2">
-              <property name="text">
-               <string>Max. Image Edge Length</string>
-              </property>
-             </widget>
-            </item>
-            <item row="5" column="1">
-             <widget class="QSpinBox" name="maxImageEdgeLengthSpinBox">
-              <property name="correctionMode">
-               <enum>QAbstractSpinBox::CorrectToNearestValue</enum>
-              </property>
-              <property name="suffix">
-               <string>px</string>
-              </property>
-              <property name="minimum">
-               <number>400</number>
-              </property>
-              <property name="maximum">
-               <number>4000</number>
-              </property>
-              <property name="value">
-               <number>800</number>
-              </property>
-             </widget>
-            </item>
-            <item row="6" column="0">
-             <widget class="QLabel" name="label_3">
-              <property name="text">
-               <string>Max. Video Edge Length</string>
-              </property>
-             </widget>
-            </item>
-            <item row="6" column="1">
-             <widget class="QSpinBox" name="maxVideoEdgeLengthSpinBox">
-              <property name="correctionMode">
-               <enum>QAbstractSpinBox::CorrectToNearestValue</enum>
-              </property>
-              <property name="suffix">
-               <string>px</string>
-              </property>
-              <property name="minimum">
-               <number>40</number>
-              </property>
-              <property name="maximum">
-               <number>4000</number>
-              </property>
-             </widget>
-            </item>
-            <item row="7" column="0">
-             <widget class="QLabel" name="label_4">
-              <property name="text">
-               <string>Video Frame Rate</string>
-              </property>
-             </widget>
-            </item>
-            <item row="7" column="1">
-             <widget class="QDoubleSpinBox" name="frameRateDoubleSpinBox">
-              <property name="suffix">
-               <string>Hz</string>
-              </property>
-              <property name="minimum">
-               <double>1.000000000000000</double>
-              </property>
-              <property name="maximum">
-               <double>60.000000000000000</double>
-              </property>
-              <property name="value">
-               <double>25.000000000000000</double>
-              </property>
-             </widget>
-            </item>
-            <item row="8" column="0">
-             <widget class="QLabel" name="label_5">
-              <property name="text">
-               <string>Max. Video Length</string>
-              </property>
-             </widget>
-            </item>
-            <item row="8" column="1">
-             <widget class="QSpinBox" name="maxVideoLengthSpinBox">
-              <property name="correctionMode">
-               <enum>QAbstractSpinBox::CorrectToNearestValue</enum>
-              </property>
-              <property name="suffix">
-               <string>s</string>
-              </property>
-              <property name="minimum">
-               <number>1</number>
-              </property>
-              <property name="maximum">
-               <number>300</number>
-              </property>
-              <property name="value">
-               <number>30</number>
-              </property>
-              <property name="displayIntegerBase">
-               <number>10</number>
-              </property>
-             </widget>
-            </item>
-            <item row="1" column="0">
-             <widget class="QLabel" name="label_6">
-              <property name="text">
-               <string>User Name</string>
-              </property>
-             </widget>
-            </item>
-            <item row="1" column="1">
-             <widget class="QLineEdit" name="userNameLineEdit"/>
             </item>
            </layout>
           </widget>
@@ -419,6 +376,11 @@
    <class>KeySequence_Widget</class>
    <extends>QKeySequenceEdit</extends>
    <header>keysequence_widget.h</header>
+  </customwidget>
+  <customwidget>
+   <class>UploadQueueWidget</class>
+   <extends>QTableWidget</extends>
+   <header>UploadQueueWidget.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

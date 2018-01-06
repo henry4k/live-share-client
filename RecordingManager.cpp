@@ -77,19 +77,21 @@ Recorder *RecordingManager::recorder() const
 
 void RecordingManager::setImageShortcut(QKeySequence shortcut)
 {
+    const QKeySequence oldShortcut = imageShortcut();
     if(!imageHotkey->setShortcut(shortcut, true)) // set and register
     {
         qWarning("can't set image hotkey");
-        emit imageShortcutChanged(imageShortcut());
+        emit imageShortcutChanged(oldShortcut);
     }
 }
 
 void RecordingManager::setVideoShortcut(QKeySequence shortcut)
 {
+    const QKeySequence oldShortcut = videoShortcut();
     if(!videoHotkey->setShortcut(shortcut, true)) // set and register
     {
         qWarning("can't set video hotkey");
-        emit videoShortcutChanged(videoShortcut());
+        emit videoShortcutChanged(oldShortcut);
     }
 }
 

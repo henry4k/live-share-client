@@ -1,20 +1,20 @@
 #include <QtGlobal> // qWarning
 #include <QSettings>
+#include <QKeySequence>
 #include <QCloseEvent>
 #include <QRegularExpression>
 #include <QRegularExpressionValidator>
 #include <QFileDialog>
-#include <QNetworkReply>
-#include <QMimeDatabase>
 #include <QSignalBlocker>
-#include <QHotkey>
 #include "ExecutableValidator.h"
 #include "WindowInfo.h"
 #include "RecordingManager.h"
 #include "Recorder.h"
 #include "UploadManager.h"
+#include "Upload.h"
 #include "MainWindow.h"
 #include "ui_MainWindow.h"
+
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -24,8 +24,26 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    // TODO:
-    // ui->categoryLineEdit->setValidator(); - no / at start or end; only URL safe characters
+    // Actions
+    QAction *quitAction = new QAction();
+    quitAction->setAutoRepeat(false);
+    quitAction->setMenuRole(QAction::QuitRole);
+    quitAction->setShortcuts(QKeySequence::Quit);
+    addAction(quitAction);
+    connect(quitAction, &QAction::triggered,
+            this, &MainWindow::quitActionTriggered);
+
+    QAction *preferencesAction = new QAction();
+    preferencesAction->setAutoRepeat(false);
+    preferencesAction->setMenuRole(QAction::PreferencesRole);
+    preferencesAction->setShortcuts(QKeySequence::Preferences);
+    addAction(preferencesAction);
+    connect(preferencesAction, &QAction::triggered,
+            this, &MainWindow::preferencesActionTriggered);
+
+    qWarning("quit-shortcut: %s", qUtf8Printable(QKeySequence(QKeySequence::Quit).toString()));
+    qWarning("pref-shortcut: %s", qUtf8Printable(QKeySequence(QKeySequence::Preferences).toString()));
+
     {
         // Protocol must be http or https
         // Must not end with a slash
@@ -35,9 +53,17 @@ MainWindow::MainWindow(QWidget *parent) :
     }
 
     {
+        // URL safe characters
         const QRegularExpression regExp("[A-Za-z0-9_. -]*");
         QValidator *validator = new QRegularExpressionValidator(regExp, this);
         ui->userNameLineEdit->setValidator(validator);
+    }
+
+    {
+        // URL safe characters
+        const QRegularExpression regExp("[A-Za-z0-9_. -]*");
+        QValidator *validator = new QRegularExpressionValidator(regExp, this);
+        ui->categoryLineEdit->setValidator(validator);
     }
 
     {
@@ -46,6 +72,9 @@ MainWindow::MainWindow(QWidget *parent) :
     }
 
     Recorder *recorder = recordingManager->recorder();
+
+    connect(recordingManager, &RecordingManager::recordingFinished,
+            this, &MainWindow::recordingFinished);
 
     // Widget --{changed}-> RecordingManager
     connect(ui->imageKeySequenceEdit, &KeySequence_Widget::keySequenceChanged,
@@ -93,6 +122,9 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(uploadManager, &UploadManager::userNameChanged,
             ui->userNameLineEdit, &QLineEdit::setText);
 
+    connect(uploadManager, &UploadManager::uploadEnqueued,
+            ui->uploadQueueWidget, &UploadQueueWidget::uploadEnqueued);
+
     const QSignalBlocker imageKeySequenceBlocker(ui->imageKeySequenceEdit);
     const QSignalBlocker videoKeySequenceBlocker(ui->videoKeySequenceEdit);
     const QSignalBlocker ffmpegExecutableBlocker(ui->ffmpegLineEdit);
@@ -102,6 +134,7 @@ MainWindow::MainWindow(QWidget *parent) :
     const QSignalBlocker maxVideoLengthBlocker(ui->maxVideoLengthSpinBox);
     const QSignalBlocker serviceUrlBlocker(ui->urlLineEdit);
     const QSignalBlocker userNameBlocker(ui->userNameLineEdit);
+    const QSignalBlocker categoryBlocker(ui->categoryLineEdit);
     readSettings();
 }
 
@@ -121,6 +154,7 @@ void MainWindow::readSettings()
 
     settings.beginGroup("upload");
     uploadManager->readSettings(settings);
+    ui->categoryLineEdit->setText(settings.value("category").value<QString>());
     settings.endGroup();
 }
 
@@ -135,13 +169,34 @@ void MainWindow::writeSettings()
 
     settings.beginGroup("upload");
     uploadManager->writeSettings(settings);
+    settings.setValue("category", ui->categoryLineEdit->text());
     settings.endGroup();
+}
+
+void MainWindow::quitActionTriggered()
+{
+    close();
+}
+
+void MainWindow::preferencesActionTriggered()
+{
+    ui->tabWidget->setCurrentWidget(ui->preferencesTabPage);
+    activateWindow();
+    raise();
 }
 
 void MainWindow::closeEvent(QCloseEvent *event)
 {
     writeSettings();
     event->accept();
+}
+
+void MainWindow::recordingFinished(QFile *file)
+{
+    Upload *upload = new Upload(file,
+                                recordingManager->recorder()->mimeType(),
+                                ui->categoryLineEdit->text());
+    uploadManager->enqueueUpload(upload);
 }
 
 void MainWindow::on_urlLineEdit_editingFinished()

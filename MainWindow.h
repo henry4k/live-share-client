@@ -1,15 +1,14 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#include <QFile>
-#include <QUrl>
 #include <QMainWindow>
-#include <QNetworkAccessManager>
 
+class QFile;
 class RecordingManager;
 class UploadManager;
 
-namespace Ui {
+namespace Ui
+{
 class MainWindow;
 }
 
@@ -22,6 +21,9 @@ public:
     ~MainWindow();
 
 private slots:
+    void quitActionTriggered();
+    void preferencesActionTriggered();
+    void recordingFinished(QFile *file);
     void on_urlLineEdit_editingFinished();
     void on_userNameLineEdit_editingFinished();
     void on_ffmpegLineEdit_editingFinished();
@@ -35,7 +37,6 @@ private:
     void writeSettings();
 
     Ui::MainWindow *ui;
-
     RecordingManager *recordingManager;
     UploadManager *uploadManager;
 };

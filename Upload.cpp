@@ -2,6 +2,7 @@
 #include <QNetworkReply>
 #include "Upload.h"
 
+
 Upload::Upload(QFile *file,
                const QString &mimeType,
                const QString &category,
@@ -46,19 +47,24 @@ const QString &Upload::category() const
     return _category;
 }
 
-const Upload::State Upload::state() const
+Upload::State Upload::state() const
 {
     return _state;
 }
 
-const qint64 Upload::totalBytes() const
+qint64 Upload::totalBytes() const
 {
     return _totalBytes;
 }
 
-const qint64 Upload::sentBytes() const
+qint64 Upload::sentBytes() const
 {
     return _sentBytes;
+}
+
+const QString &Upload::errorString() const
+{
+    return _errorString;
 }
 
 void Upload::started(QNetworkReply *reply)
@@ -91,7 +97,27 @@ void Upload::progress(qint64 sent, qint64 total)
 
 void Upload::finished()
 {
-    _state = Completed;
+    const int errorCode = networkReply->error();
+    const int statusCode = networkReply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
+
+    if(errorCode != QNetworkReply::NoError)
+    {
+        qWarning("network error: %s", qUtf8Printable(networkReply->errorString()));
+        _errorString = networkReply->errorString();
+        _state = Failed;
+    }
+    else if(statusCode != 200)
+    {
+        qWarning("server error: %d", statusCode);
+        _errorString = QString().setNum(statusCode);
+        _state = Failed;
+    }
+    else
+    {
+        qWarning("no error");
+        _state = Completed;
+    }
+
     emit stateChanged(_state);
 
     networkReply->deleteLater();

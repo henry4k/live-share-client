@@ -80,6 +80,7 @@ void UploadManager::startUpload(Upload *upload)
 
     QNetworkRequest request(requestUrl);
     request.setHeader(QNetworkRequest::ContentTypeHeader, upload->mimeType());
+    request.setHeader(QNetworkRequest::ContentLengthHeader, file->size());
     // TODO: userName
     // TODO: category
 
@@ -106,7 +107,8 @@ void UploadManager::tryStartUpload()
 
 void UploadManager::uploadStateChanged(Upload::State state)
 {
-    if(state != Upload::Active)
+    if(state == Upload::Completed ||
+       state == Upload::Failed)
     {
         activeUploadCount--;
         Q_ASSERT(activeUploadCount >= 0);
