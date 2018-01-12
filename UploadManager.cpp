@@ -3,6 +3,7 @@
 #include <QNetworkReply>
 #include <QSettings>
 #include <QFile>
+#include <QUrl>
 #include "UploadManager.h"
 
 
@@ -76,13 +77,21 @@ void UploadManager::startUpload(Upload *upload)
     Q_ASSERT(!file->isOpen());
     file->open(QIODevice::ReadOnly);
 
-    const QString requestUrl = _serviceUrl + "/upload";
+    const QString requestUrl = QString("%1/upload?category=%2")
+        .arg(_serviceUrl)
+        .arg(upload->category());
+    qWarning(qUtf8Printable(requestUrl));
+
+    const QString userInfo = QString("%1:%2")
+        .arg(_userName)
+        .arg(""); // TODO: Password
+    QByteArray authorization("Basic ");
+    authorization.append(userInfo.toUtf8().toBase64());
 
     QNetworkRequest request(requestUrl);
     request.setHeader(QNetworkRequest::ContentTypeHeader, upload->mimeType());
     request.setHeader(QNetworkRequest::ContentLengthHeader, file->size());
-    // TODO: userName
-    // TODO: category
+    request.setRawHeader(QByteArray("Authorization"), authorization);
 
     QNetworkReply *reply = networkAccessManager->post(request, file);
 
