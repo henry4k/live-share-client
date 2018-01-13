@@ -102,7 +102,9 @@ QString Recorder::mimeType() const
 {
     switch(_recordType)
     {
-    case Image: return "image/webp";
+    //case Image: return "image/png";
+    case Image: return "image/jpeg";
+    //case Image: return "image/webp";
     case Video: return "video/webm";
     }
     return "";
@@ -205,7 +207,11 @@ bool Recorder::appendOutputArguments(QStringList &arguments)
     {
     case Image:
         arguments << "-f" << "image2";
-        arguments << "-c:v" << "libwebp";
+        //arguments << "-c:v" << "png";
+        arguments << "-c:v" << "jpeg2000";
+        //arguments << "-q:v" << "90"; // jpg quality
+        arguments << "-pred" << "1"; // lossless jpg
+        //arguments << "-c:v" << "libwebp";
         arguments << "-frames:v" << "1";
         break;
 
@@ -345,6 +351,7 @@ void Recorder::start()
     createOutputFile();
 
     QStringList arguments;
+    arguments << "-hide_banner";
 #if !defined(QT_NO_WARNING_OUTPUT)
     arguments << "-loglevel" << "warning";
 #endif
