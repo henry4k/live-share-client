@@ -102,10 +102,8 @@ QString Recorder::mimeType() const
 {
     switch(_recordType)
     {
-    //case Image: return "image/png";
     case Image: return "image/jpeg";
-    //case Image: return "image/webp";
-    case Video: return "video/webm";
+    case Video: return "video/mp4";
     }
     return "";
 }
@@ -207,17 +205,33 @@ bool Recorder::appendOutputArguments(QStringList &arguments)
     {
     case Image:
         arguments << "-f" << "image2";
-        //arguments << "-c:v" << "png";
-        arguments << "-c:v" << "jpeg2000";
-        //arguments << "-q:v" << "90"; // jpg quality
-        arguments << "-pred" << "1"; // lossless jpg
-        //arguments << "-c:v" << "libwebp";
+
+        //arguments << "-codec:v" << "png";
+        //arguments << "-compression_level" << "100";
+
+        arguments << "-codec:v" << "mjpeg";
+        arguments << "-qscale:v" << "0"; // Effective range for JPEG is 2-31 with 31 being the worst quality.
+        arguments << "-huffman" << "optimal";
+
+        //arguments << "-codec:v" << "libwebp";
+        //arguments << "-lossless" << "1";
+        //arguments << "-compression_level" << "6";
+        //arguments << "-qscale" << "100"; // lossy encoding quality: 0-100
+        //arguments << "-preset" << "icon";
+
         arguments << "-frames:v" << "1";
         break;
 
     case Video:
-        arguments << "-f" << "webm";
-        arguments << "-c:v" << "libvpx";
+        arguments << "-f" << "mp4";
+        arguments << "-movflags" << "faststart+frag_keyframe+empty_moov";
+        arguments << "-codec:v" << "libx264";
+        arguments << "-pix_fmt" << "yuv420p"; // otherwise defaults to yuv444p, which is not supported by most current browsers
+
+        //arguments << "-f" << "webm";
+        //arguments << "-codec:v" << "libvpx";
+        //arguments << "-deadline" << "good";
+        //arguments << "-tune-content" << "1";
         break;
     }
     return true;
@@ -352,8 +366,10 @@ void Recorder::start()
 
     QStringList arguments;
     arguments << "-hide_banner";
+    arguments << "-hwaccel" << "auto";
 #if !defined(QT_NO_WARNING_OUTPUT)
-    arguments << "-loglevel" << "warning";
+    arguments << "-loglevel" << "debug";
+    //arguments << "-loglevel" << "warning";
 #endif
     if(!appendInputArguments(arguments)  ||
        !appendOutputArguments(arguments) ||
