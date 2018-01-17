@@ -7,6 +7,7 @@ struct WindowInfo
 {
     int x, y, w, h; // inner size
     int dpi;
+    bool isFullscreen;
 #if defined(_WIN32)
     char title[WINDOW_TITLE_SIZE];
 #else

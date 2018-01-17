@@ -103,13 +103,13 @@ bool GetInfoOfActiveWindow(WindowInfo* info)
     {
         Window child; // unused
         const int result = XTranslateCoordinates(display,
-                                                window, // target
-                                                DefaultRootWindow(display), // source
-                                                0, // source x
-                                                0, // source y
-                                                &x,
-                                                &y,
-                                                &child);
+                                                 window, // target
+                                                 DefaultRootWindow(display), // source
+                                                 0, // source x
+                                                 0, // source y
+                                                 &x,
+                                                 &y,
+                                                 &child);
         if(result == BadWindow)
         {
             printf("XTranslateCoordinates failed\n");
@@ -130,12 +130,40 @@ bool GetInfoOfActiveWindow(WindowInfo* info)
         }
     }
 
+    double dpi;
+    bool isFullscreen;
+    {
+        XWindowAttributes attributes;
+        const int result = XGetWindowAttributes(display, window, &attributes);
+        if(result == BadDrawable ||
+           result == BadWindow)
+        {
+            printf("XGetWindowAttributes failed\n");
+            return false;
+        }
+
+        Screen* screen = attributes.screen;
+
+        const int screenWidthPx  = XWidthOfScreen(screen);
+        const int screenHeightPx = XHeightOfScreen(screen);
+        const int screenWidthMm  = XWidthMMOfScreen(screen);
+
+        static const double mmPerInch = 25.4;
+        dpi = (double)screenWidthPx * mmPerInch / (double)screenWidthMm;
+        //dpi = (double)screenWidthPx / (double)screenWidthMm * mmPerInch;
+
+        isFullscreen = screenWidthPx == (int)width &&
+                       screenHeightPx == (int)height;
+    }
+
     XCloseDisplay(display);
 
     info->x = x;
     info->y = y;
     info->w = (int)width;
     info->h = (int)height;
+    info->dpi = (int)dpi;
+    info->isFullscreen = isFullscreen;
     info->displayName = displayName;
     return true;
 }

@@ -151,6 +151,9 @@ void RecordingManager::startRecording(Recorder::RecordType recordType)
         return;
     }
 
+    qWarning("XXX DPI: %d", windowInfo.dpi);
+    qWarning("XXX Fullscreen: %d", (int)windowInfo.isFullscreen);
+
     _recorder->setWindowInfo(windowInfo);
     _recorder->setRecordType(recordType);
     _recorder->start();
