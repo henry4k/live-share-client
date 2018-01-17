@@ -1,20 +1,9 @@
 #include <assert.h>
 #include <stdio.h> // DEBUG
-#include "WindowInfo.h"
-
-#if defined(_WIN32)
-#include "Windows.h"
-WindowInfo GetInfoOfActiveWindow()
-{
-    const HWND windowHandle = GetForegroundWindow();
-    if(windowHandle == NULL)
-    {
-        // :(
-    }
-}
-#else // X11
 #include <X11/Xlib.h>
 #include <X11/Xatom.h> // XA_WINDOW
+#include "WindowInfo.h"
+
 
 static Window GetWindowWithInputFocus(Display* display)
 {
@@ -150,4 +139,3 @@ bool GetInfoOfActiveWindow(WindowInfo* info)
     info->displayName = displayName;
     return true;
 }
-#endif
