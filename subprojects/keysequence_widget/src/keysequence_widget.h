@@ -28,10 +28,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QWidget>
 #include <QKeySequence>
+#include "keysequence_widget_shared.h"
 
-
-
-class KeySequence_Widget : public QWidget
+class KEYSEQUENCE_WIDGET_SHARED_EXPORT KeySequence_Widget : public QWidget
 {
     Q_OBJECT
     Q_PROPERTY(QKeySequence keySequence READ keySequence WRITE setKeySequence NOTIFY keySequenceChanged USER true)

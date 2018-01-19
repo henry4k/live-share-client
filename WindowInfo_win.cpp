@@ -1,6 +1,6 @@
 #include <assert.h>
 #include <stdio.h> // DEBUG
-#include <Windows.h>
+#include <windows.h>
 #include "WindowInfo.h"
 
 
@@ -15,9 +15,9 @@ bool GetInfoOfActiveWindow(WindowInfo* info)
 
     {
         POINT point = {0, 0}; // translate the top-left client coordinates
-        if(!ClientToScreen(windowHandle, &screenPoint))
+        if(!ClientToScreen(windowHandle, &point))
         {
-            pritnf("ClientToScreen failed\n");
+            printf("ClientToScreen failed\n");
             return false;
         }
 
@@ -49,12 +49,12 @@ bool GetInfoOfActiveWindow(WindowInfo* info)
         return false;
     }
 
-    info->dpi = (int)GetDpiForWindow(windowHandle);
-    if(!info->dpi)
-    {
-        printf("GetDpiForWindow failed\n");
-        return false;
-    }
+    //info->dpi = (int)GetDpiForWindow(windowHandle);
+    //if(!info->dpi)
+    //{
+    //    printf("GetDpiForWindow failed\n");
+    //    return false;
+    //}
 
     return true;
 }

@@ -3,7 +3,7 @@ project('qhotkey', 'cpp',
 
 qt5 = import('qt5')
 
-qt_modules = ['Core']
+qt_modules = ['Core', 'Gui']
 deps = []
 inc = include_directories('QHotkey')
 moc_headers = ['QHotkey/qhotkey.h',
@@ -28,15 +28,22 @@ endif
 
 deps += dependency('qt5', modules: qt_modules)
 
+public_cpp_args = []
+cpp_args = []
+if get_option('default_library') == 'shared'
+    public_cpp_args += ['-DQHOTKEY_SHARED']
+    cpp_args += ['-DQHOTKEY_BUILDING_SHARED']
+endif
+
 qhotkey_library = library('qhotkey',
                           sources,
                           qt5.preprocess(moc_headers: moc_headers),
                           dependencies: deps,
                           include_directories: inc,
-                          cpp_args: ['-DQHOTKEY_LIB', '-DQHOTKEY_LIB_BUILD'])
+                          cpp_args: [public_cpp_args, cpp_args])
 
 qhotkey_dep = declare_dependency(link_with: qhotkey_library,
                                  include_directories: inc,
-                                 cpp_args: ['-DQHOTKEY_LIB'])
+                                 compile_args: public_cpp_args)
 
 # vim: set softtabstop=4 shiftwidth=4:

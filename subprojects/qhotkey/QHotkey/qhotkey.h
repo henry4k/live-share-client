@@ -1,19 +1,20 @@
 #ifndef QHOTKEY_H
 #define QHOTKEY_H
 
+#include <QtGlobal>
 #include <QObject>
 #include <QKeySequence>
 #include <QPair>
 #include <QLoggingCategory>
 
-#ifdef QHOTKEY_LIB
-	#ifdef QHOTKEY_LIB_BUILD
-		#define QHOTKEY_SHARED_EXPORT Q_DECL_EXPORT
-	#else
-		#define QHOTKEY_SHARED_EXPORT Q_DECL_IMPORT
-	#endif
+#ifdef QHOTKEY_SHARED
+    #ifdef QHOTKEY_BUILDING_SHARED
+        #define QHOTKEY_SHARED_EXPORT Q_DECL_EXPORT
+    #else
+        #define QHOTKEY_SHARED_EXPORT Q_DECL_IMPORT
+    #endif
 #else
-	#define QHOTKEY_SHARED_EXPORT
+    #define QHOTKEY_SHARED_EXPORT
 #endif
 
 //! A class to define global, systemwide Hotkeys

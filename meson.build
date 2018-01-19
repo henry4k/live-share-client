@@ -1,4 +1,5 @@
-project('live-share-client', 'cpp')
+project('live-share-client', 'cpp',
+        default_options: ['cpp_std=c++11'])
 
 qt5 = import('qt5')
 
@@ -39,4 +40,5 @@ executable('live-share-client',
            sources,
            qt5.preprocess(moc_headers: moc_headers, ui_files: 'MainWindow.ui'),
            gui_app: true,
+           install: true,
            dependencies: dependencies)

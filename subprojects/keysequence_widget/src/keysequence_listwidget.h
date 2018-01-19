@@ -27,8 +27,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define KEYSEQUENCE_LISTWIDGET_HPP
 
 #include <QTableWidget>
+#include "keysequence_widget_shared.h"
 
-class KeySequence_ListWidget : public QTableWidget
+class KEYSEQUENCE_WIDGET_SHARED_EXPORT KeySequence_ListWidget : public QTableWidget
 {
     Q_OBJECT
     Q_PROPERTY(bool show_reset_buttons READ show_reset_buttons WRITE set_show_reset_buttons )
