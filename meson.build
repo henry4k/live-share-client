@@ -36,9 +36,11 @@ else
     sources += 'WindowInfo_x11.cpp'
 endif
 
-executable('live-share-client',
-           sources,
-           qt5.preprocess(moc_headers: moc_headers, ui_files: 'MainWindow.ui'),
-           gui_app: true,
-           install: true,
-           dependencies: dependencies)
+client_executable = executable('live-share-client',
+    sources,
+    qt5.preprocess(moc_headers: moc_headers, ui_files: 'MainWindow.ui'),
+    gui_app: true,
+    install: true,
+    dependencies: dependencies)
+
+subdir('deployment')

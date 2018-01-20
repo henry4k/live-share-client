@@ -1,0 +1,51 @@
+#!/usr/bin/env lua
+-- This is invoked by meson as an install script.
+-- Therefore it can expect to have these environment variables available:
+-- - MESON_SOURCE_ROOT
+-- - MESON_BUILD_ROOT
+-- - MESON_INSTALL_PREFIX
+-- - MESON_INSTALL_DESTDIR_PREFIX
+-- - MESONINTROSPECT
+
+local blacklist = {'Qt5Widgets'}
+local function is_blacklisted(file)
+    for _, pattern in ipairs(blacklist) do
+        if file:match(pattern) then
+            return true
+        end
+    end
+end
+
+local install_prefix = os.getenv'MESON_INSTALL_PREFIX'
+local find_command = ([[
+    find %s
+        -type f
+        '('
+            -regextype egrep
+            -iregex '.*(exe|dll|so|dylib)$'
+            -o
+            -executable
+        ')']]):gsub('\n%s*', ' '):format(install_prefix)
+
+local files = {}
+local find_process = assert(io.popen(find_command, 'r'))
+for file in find_process:lines() do
+    if not is_blacklisted(file) then
+        table.insert(files, file)
+    end
+end
+find_process:close()
+
+local file_args = {}
+for _, file in ipairs(files) do
+    table.insert(file_args, "'"..file.."'")
+end
+
+local upx_command = ([[
+    %s
+        --force
+        --compress-exports=0
+        %s]]):gsub('\n%s*', ' '):format(table.concat(arg, ' '),
+                                        table.concat(file_args, ' '))
+
+os.execute(upx_command)

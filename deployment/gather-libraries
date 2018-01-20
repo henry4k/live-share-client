@@ -1,0 +1,193 @@
+#!/usr/bin/env lua
+
+local path = require'path'
+local parser = require'argparse'()
+
+local function check_file_arg(arg)
+    if path.isfile(arg) then
+        return arg
+    else
+        return nil, arg..' must be a file.'
+    end
+end
+
+local function check_dir_arg(arg)
+    if path.isdir(arg) then
+        return arg
+    else
+        return nil, arg..' must be a directory.'
+    end
+end
+
+parser:argument'binary'
+    :description('The binary that shall be analyzed. '..
+                 'This can be an executable or a library.')
+    :args(1)
+    :convert(check_file_arg)
+
+parser:option'-o --lib-out'
+    :description('Found libraries are placed in this directory. '..
+                 'Defaults to the exectuables directory.')
+    :argname'<directory>'
+    :args(1)
+    :convert(check_dir_arg)
+
+parser:option'--link'
+    :description'Create links instead of copies.'
+
+parser:option'-d --dry-run'
+    :description"Don't copy anything - just pretend to."
+
+parser:option'--objdump'
+    :description'Name of the objdump-tool used by your toolchain.'
+    :argname'<name>'
+    :args(1)
+    :default'objdump'
+
+parser:option'-L'
+    :description'Add directory which will be searched for libraries.'
+    :argname'<directory>'
+    :args(1)
+    :convert(check_dir_arg)
+    :target'search_paths'
+    :count'+' -- one or more
+
+local args = parser:parse()
+
+if not args.lib_out then
+    args.lib_out = path.dirname(args.binary)
+end
+
+local colors_found, colors = pcall(require, 'ansicolors')
+if not colors_found then
+    colors = function(s) return s end -- pass-through function
+end
+
+local function log(...)
+    print(colors(table.concat({...})))
+end
+
+local file_format_desc =
+{
+    {
+        format_pattern = '^elf',
+        dependency_pattern = '^  NEEDED%s+(.-)$'
+    },
+    {
+        format_pattern = '^pei',
+        dependency_pattern = '^%s+DLL Name: (.+)$'
+    }
+}
+
+local function get_file_format_desc(format)
+    for _, desc in ipairs(file_format_desc) do
+        if format:match(desc.format_pattern) then
+            return desc
+        end
+    end
+    error('Unknown file format: '..format)
+end
+
+local function read_file_format(f)
+    for line in f:lines() do
+        local format_name = line:match('file format ([^%s]+)')
+        if format_name then
+            return get_file_format_desc(format_name)
+        end
+    end
+    error('No file format found.')
+end
+
+local function find_dependencies(binary)
+    local command = string.format("'%s' -p '%s'",
+                                  args.objdump,
+                                  binary)
+    local process = assert(io.popen(command, 'r'))
+
+    local dependency_pattern = read_file_format(process).dependency_pattern
+
+    local r = {}
+    for line in process:lines() do
+        local library = line:match(dependency_pattern)
+        if library then
+            table.insert(r, library)
+        end
+    end
+
+    process:close()
+    return r
+end
+
+local function locate_in_search_paths(name)
+    for _, dir in ipairs(args.search_paths) do
+        local location = path.join(dir, name)
+        if path.exists(location) then
+            return location
+        end
+
+        location = path.join(dir, name:lower())
+        if path.exists(location) then
+            return location
+        end
+    end
+end
+
+local copy_file, copy_verb
+if args.link then
+    local lfs = require'lfs'
+    copy_verb = 'linked'
+    copy_file = function(src, dst)
+        return lfs.link(src, dst, true) -- create symbolic link
+    end
+else
+    copy_verb = 'copied'
+    copy_file = path.copy
+end
+
+if args.dry_run then
+    copy_file = function() end -- no-op function
+end
+
+local copied_libraries = {}
+
+local function copy(location, name)
+    assert(not copied_libraries[name])
+
+    local src = location
+    local dst = path.join(args.lib_out, name)
+    copy_file(src, dst)
+
+    copied_libraries[name] = true
+end
+
+local function gather_libraries(binary_location, binary_name)
+    log('Gathering dependencies of %{bright}', binary_name)
+
+    local library_names = find_dependencies(binary_location)
+    local libraries_to_gather = {} -- {location = ..., name = ...}
+
+    for _, name in ipairs(library_names) do
+        assert(not name:match('[/\\]'))
+
+        if not copied_libraries[name] then
+            local location = locate_in_search_paths(name)
+            if location then
+                log('  %{green}', name, '%{reset} ', copy_verb,' from ', path.dirname(location))
+                copy(location, name)
+                table.insert(libraries_to_gather, {location = location,
+                                                   name = name})
+            else
+                log('  %{red}', name, '%{reset} was not found in search paths')
+            end
+        else
+            log('  ', name, ' was already ', copy_verb)
+        end
+    end
+    log()
+
+    for _, lib in ipairs(libraries_to_gather) do
+        gather_libraries(lib.location, lib.name)
+    end
+end
+
+gather_libraries(args.binary, path.basename(args.binary))
