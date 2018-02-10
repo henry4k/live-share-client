@@ -26,6 +26,7 @@ private slots:
     void recordingFinished(QFile *file);
     void on_urlLineEdit_editingFinished();
     void on_userNameLineEdit_editingFinished();
+    void on_passwordLineEdit_editingFinished();
     void on_ffmpegLineEdit_editingFinished();
     void on_ffmpegFileDialogButton_clicked();
 

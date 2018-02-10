@@ -23,15 +23,18 @@ void UploadManager::readSettings(QSettings &settings)
 {
     setServiceUrl(settings.value("serviceUrl").value<QString>());
     setUserName(settings.value("userName").value<QString>());
+    setPassword(settings.value("password").value<QString>());
 
     emit serviceUrlChanged(serviceUrl());
     emit userNameChanged(userName());
+    emit passwordChanged(password());
 }
 
 void UploadManager::writeSettings(QSettings &settings)
 {
     settings.setValue("serviceUrl", serviceUrl());
     settings.setValue("userName", userName());
+    settings.setValue("password", password());
 }
 
 
@@ -47,6 +50,11 @@ const QString &UploadManager::userName() const
     return _userName;
 }
 
+const QString &UploadManager::password() const
+{
+    return _password;
+}
+
 
 // ---- Setters ----
 
@@ -60,12 +68,24 @@ void UploadManager::setUserName(const QString &name)
     _userName = name;
 }
 
+void UploadManager::setPassword(const QString &pw)
+{
+    _password = pw;
+}
+
 void UploadManager::enqueueUpload(Upload *upload)
 {
     queue.enqueue(upload);
     upload->setParent(this);
     emit uploadEnqueued(upload);
     tryStartUpload();
+}
+
+static void disableCertificateVerification(QNetworkRequest *request)
+{
+    QSslConfiguration conf = request->sslConfiguration();
+    conf.setPeerVerifyMode(QSslSocket::VerifyNone);
+    request->setSslConfiguration(conf);
 }
 
 void UploadManager::startUpload(Upload *upload)
@@ -84,7 +104,7 @@ void UploadManager::startUpload(Upload *upload)
 
     const QString userInfo = QString("%1:%2")
         .arg(_userName)
-        .arg(""); // TODO: Password
+        .arg(_password);
     QByteArray authorization("Basic ");
     authorization.append(userInfo.toUtf8().toBase64());
 
@@ -92,6 +112,7 @@ void UploadManager::startUpload(Upload *upload)
     request.setHeader(QNetworkRequest::ContentTypeHeader, upload->mimeType());
     request.setHeader(QNetworkRequest::ContentLengthHeader, file->size());
     request.setRawHeader(QByteArray("Authorization"), authorization);
+    disableCertificateVerification(&request);
 
     QNetworkReply *reply = networkAccessManager->post(request, file);
 

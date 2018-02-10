@@ -59,6 +59,13 @@ MainWindow::MainWindow(QWidget *parent) :
         ui->userNameLineEdit->setValidator(validator);
     }
 
+    //{
+    //    // URL safe characters
+    //    const QRegularExpression regExp("[A-Za-z0-9_. -]*");
+    //    QValidator *validator = new QRegularExpressionValidator(regExp, this);
+    //    ui->passwordLineEdit->setValidator(validator);
+    //}
+
     {
         // URL safe characters
         const QRegularExpression regExp("[A-Za-z0-9_. -]*");
@@ -121,6 +128,8 @@ MainWindow::MainWindow(QWidget *parent) :
             ui->urlLineEdit, &QLineEdit::setText);
     connect(uploadManager, &UploadManager::userNameChanged,
             ui->userNameLineEdit, &QLineEdit::setText);
+    connect(uploadManager, &UploadManager::passwordChanged,
+            ui->passwordLineEdit, &QLineEdit::setText);
 
     connect(uploadManager, &UploadManager::uploadEnqueued,
             ui->uploadQueueWidget, &UploadQueueWidget::uploadEnqueued);
@@ -134,6 +143,7 @@ MainWindow::MainWindow(QWidget *parent) :
     const QSignalBlocker maxVideoLengthBlocker(ui->maxVideoLengthSpinBox);
     const QSignalBlocker serviceUrlBlocker(ui->urlLineEdit);
     const QSignalBlocker userNameBlocker(ui->userNameLineEdit);
+    const QSignalBlocker passwordBlocker(ui->passwordLineEdit);
     const QSignalBlocker categoryBlocker(ui->categoryLineEdit);
     readSettings();
 }
@@ -207,6 +217,11 @@ void MainWindow::on_urlLineEdit_editingFinished()
 void MainWindow::on_userNameLineEdit_editingFinished()
 {
     uploadManager->setUserName(ui->userNameLineEdit->text());
+}
+
+void MainWindow::on_passwordLineEdit_editingFinished()
+{
+    uploadManager->setPassword(ui->passwordLineEdit->text());
 }
 
 void MainWindow::on_ffmpegLineEdit_editingFinished()

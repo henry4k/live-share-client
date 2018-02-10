@@ -24,15 +24,18 @@ public:
 
     const QString &serviceUrl() const;
     const QString &userName() const;
+    const QString &password() const;
 
 signals:
     void serviceUrlChanged(const QString &url);
     void userNameChanged(const QString &name);
+    void passwordChanged(const QString &pw);
     void uploadEnqueued(Upload *upload);
 
 public slots:
     void setServiceUrl(const QString &url);
     void setUserName(const QString &name);
+    void setPassword(const QString &pw);
     void enqueueUpload(Upload *upload);
 
 private slots:
@@ -44,6 +47,7 @@ private:
 
     QString _serviceUrl;
     QString _userName;
+    QString _password;
     QQueue<Upload*> queue;
     QNetworkAccessManager *networkAccessManager;
     int maxActiveUploadCount;
