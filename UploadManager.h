@@ -4,6 +4,7 @@
 #include <QString>
 #include <QQueue>
 #include <QObject>
+#include <keychain.h>
 #include "Upload.h"
 
 class QNetworkAccessManager;
@@ -40,8 +41,13 @@ public slots:
 
 private slots:
     void uploadStateChanged(Upload::State state);
+    void readPasswordFinished(QKeychain::Job *job);
+    void writePasswordFinished(QKeychain::Job *job);
 
 private:
+    void setupPasswordJob(QKeychain::Job *job);
+    void readPassword();
+    void writePassword();
     void tryStartUpload();
     void startUpload(Upload *upload);
 

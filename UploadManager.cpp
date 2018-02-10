@@ -1,4 +1,4 @@
-#include <QtGlobal> // qWarning
+#include <QtGlobal> // qWarning, qCritical
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
 #include <QSettings>
@@ -6,6 +6,7 @@
 #include <QUrl>
 #include "UploadManager.h"
 
+using namespace QKeychain;
 
 UploadManager::UploadManager(QObject *parent) :
     QObject(parent),
@@ -19,22 +20,95 @@ UploadManager::~UploadManager()
 {
 }
 
+void UploadManager::setupPasswordJob(Job *job)
+{
+    QSettings *settings = new QSettings(job);
+    settings->beginGroup("upload");
+    settings->beginGroup("password");
+
+    Q_ASSERT(!_userName.isEmpty());
+    job->setKey(_userName);
+    job->setInsecureFallback(true);
+    job->setSettings(settings); // used for insecure fallback
+}
+
+void UploadManager::writePassword()
+{
+    Q_ASSERT(!_serviceUrl.isEmpty());
+    Job *job;
+    if(_password.isEmpty())
+    {
+        DeletePasswordJob *deleteJob = new DeletePasswordJob(_serviceUrl.toLatin1());
+        job = deleteJob;
+    }
+    else
+    {
+        WritePasswordJob *writeJob = new WritePasswordJob(_serviceUrl.toLatin1());
+        writeJob->setTextData(_password);
+        job = writeJob;
+    }
+
+    job->setAutoDelete(true);
+    setupPasswordJob(job);
+
+    connect(job, &Job::finished,
+            this, &UploadManager::writePasswordFinished);
+
+    job->start();
+}
+
+void UploadManager::writePasswordFinished(Job *job)
+{
+    if(job->error())
+        qCritical("Writing password failed: %s",
+                  qUtf8Printable(job->errorString()));
+}
+
+void UploadManager::readPassword()
+{
+    Q_ASSERT(!_serviceUrl.isEmpty());
+    ReadPasswordJob *job = new ReadPasswordJob(_serviceUrl.toLatin1());
+    job->setAutoDelete(true);
+    setupPasswordJob(job);
+
+    connect(job, &Job::finished,
+            this, &UploadManager::readPasswordFinished);
+
+    job->start();
+}
+
+void UploadManager::readPasswordFinished(Job *_job)
+{
+    ReadPasswordJob *job = dynamic_cast<ReadPasswordJob*>(_job);
+
+    if(job->error())
+    {
+        qCritical("Reading password failed: %s",
+                  qUtf8Printable(job->errorString()));
+        return;
+    }
+
+    _password = job->textData();
+    emit passwordChanged(password());
+}
+
 void UploadManager::readSettings(QSettings &settings)
 {
     setServiceUrl(settings.value("serviceUrl").value<QString>());
     setUserName(settings.value("userName").value<QString>());
-    setPassword(settings.value("password").value<QString>());
 
     emit serviceUrlChanged(serviceUrl());
     emit userNameChanged(userName());
-    emit passwordChanged(password());
+
+    readPassword();
 }
 
 void UploadManager::writeSettings(QSettings &settings)
 {
     settings.setValue("serviceUrl", serviceUrl());
     settings.setValue("userName", userName());
-    settings.setValue("password", password());
+
+    //writePassword(); // is done in setPassword already
 }
 
 
@@ -71,6 +145,7 @@ void UploadManager::setUserName(const QString &name)
 void UploadManager::setPassword(const QString &pw)
 {
     _password = pw;
+    writePassword();
 }
 
 void UploadManager::enqueueUpload(Upload *upload)

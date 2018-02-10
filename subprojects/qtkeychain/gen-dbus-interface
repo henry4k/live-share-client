@@ -1,0 +1,7 @@
+#!/bin/sh
+OUTDIR="$1"
+INPUT="$(readlink -e $2)"
+shift 2
+cd "$OUTDIR"
+$@ "$INPUT"
+exit $?

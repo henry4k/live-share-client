@@ -24,7 +24,8 @@ moc_headers = ['Recorder.h',
 
 dependencies = [dependency('qt5', modules: ['Core', 'Gui', 'Widgets', 'Network']),
                 subproject('qhotkey').get_variable('qhotkey_dep'),
-                subproject('keysequence_widget').get_variable('keysequence_widget_dep')]
+                subproject('keysequence_widget').get_variable('keysequence_widget_dep'),
+                subproject('qtkeychain').get_variable('qtkeychain_dep')]
 
 host_system = host_machine.system()
 if host_system == 'windows'
