@@ -39,21 +39,25 @@ elif host_system == 'linux' or host_system == 'bsd'
                 'libsecret.cpp',
                 'plaintextstore.cpp']
 
-    qdbusxml2cpp = find_program('qdbusxml2cpp-qt5', 'qdbusxml2cpp')
-    gen_dbus_interface = find_program(files('gen-dbus-interface'))
-    kwallet_interface = custom_target('kwallet_interface',
-        command: [gen_dbus_interface,
-                  '@OUTDIR@',
-                  '@INPUT@',
-                  qdbusxml2cpp,
-                  '--proxy', 'kwallet_interface',
-                  '--classname', 'KWalletInterface'],
-        input: ['org.kde.KWallet.xml'],
-        output: ['kwallet_interface.h',
-                 'kwallet_interface.cpp'])
-    sources     += [kwallet_interface[1]] # .cpp
-    moc_headers += [kwallet_interface.full_path()] # .h
-    # FIXME: This is a hack as qt5.preprocess does not accept CustomTargetIndex objects.
+    #qdbusxml2cpp = find_program('qdbusxml2cpp-qt5', 'qdbusxml2cpp')
+    #gen_dbus_interface = find_program(files('gen-dbus-interface'))
+    #kwallet_interface = custom_target('kwallet_interface',
+    #    command: [gen_dbus_interface,
+    #              '@OUTDIR@',
+    #              '@INPUT@',
+    #              qdbusxml2cpp,
+    #              '--proxy', 'kwallet_interface',
+    #              '--classname', 'KWalletInterface'],
+    #    input: ['org.kde.KWallet.xml'],
+    #    output: ['kwallet_interface.h',
+    #             'kwallet_interface.cpp'])
+    #sources     += [kwallet_interface[1]] # .cpp
+    #moc_headers += [kwallet_interface[0]] # .h
+    # TODO: Generating KWallet interface automatically requires qt5.preprocess
+    # to accept CustomTargetIndex objects.
+    sources     += ['kwallet_interface.cpp']
+    moc_headers += ['kwallet_interface.h']
+    # So this is a workaround for the moment.
 else
     error('Unsupported host system.')
 endif
