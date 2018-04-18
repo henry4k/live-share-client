@@ -25,16 +25,13 @@ def buildStage(config) {
     withDockerImage('henry4k/crossbuild:1.0') {
         try {
             stage("Configure ${config.name}") {
-                //sh 'adduser -D -H -u $UID jenkins'
-                // -D: No password
-                // -H: No home dir
-                // -u user id
-
                 unstash 'source'
                 sh 'mkdir build'
                 sh 'mkdir dist'
                 sh "conan remote add sogilis 'https://api.bintray.com/conan/sogilis/testing'"
-                sh "CONAN_TRACE_FILE=\$PWD/conan.log CONAN_PRINT_RUN_COMMANDS=1 conan install --profile ${config.triple} "+
+                sh 'GIT_COMMITTER_NAME=aaa '+ // Otherwise `git clone` won't work.
+                   'GIT_COMMITTER_EMAIL=aaa@bbb.org '+
+                   "conan install --profile ${config.triple} "+
                                  '--build=outdated '+
                                  '--install-folder=$PWD/build '+
                                  '$PWD/source ; cat conan.log'
