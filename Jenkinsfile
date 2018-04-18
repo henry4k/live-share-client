@@ -28,7 +28,8 @@ def buildStage(config) {
                 unstash 'source'
                 sh 'mkdir build'
                 sh 'mkdir dist'
-                sh "conan remote add sogilis 'https://api.bintray.com/conan/sogilis/testing'"
+                sh "conan remote add henry4k 'https://api.bintray.com/conan/henry4k/conan'"
+                //sh "conan remote add sogilis 'https://api.bintray.com/conan/sogilis/testing'"
                 sh 'GIT_COMMITTER_NAME=aaa '+ // Otherwise `git clone` won't work.
                    'GIT_COMMITTER_EMAIL=aaa@bbb.org '+
                    "conan install --profile ${config.triple} "+
