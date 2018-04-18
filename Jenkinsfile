@@ -25,14 +25,19 @@ def buildStage(config) {
     withDockerImage('henry4k/crossbuild:1.0') {
         try {
             stage("Configure ${config.name}") {
+                //sh 'adduser -D -H -u $UID jenkins'
+                // -D: No password
+                // -H: No home dir
+                // -u user id
+
                 unstash 'source'
                 sh 'mkdir build'
                 sh 'mkdir dist'
                 sh "conan remote add sogilis 'https://api.bintray.com/conan/sogilis/testing'"
-                sh "conan install --profile ${config.triple} "+
+                sh "CONAN_TRACE_FILE=conan.log CONAN_PRINT_RUN_COMMANDS=1 conan install --profile ${config.triple} "+
                                  '--build=outdated '+
                                  '--install-folder=$PWD/build '+
-                                 '$PWD/source'
+                                 '$PWD/source ; cat conan.log'
                 sh 'PKG_CONFIG_PATH=$PWD/build '+
                    'OSXCROSS_PKG_CONFIG_PATH=$PWD/build '+
                    'meson --libdir= '+
