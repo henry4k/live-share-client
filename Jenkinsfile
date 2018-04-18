@@ -34,7 +34,7 @@ def buildStage(config) {
                 sh 'mkdir build'
                 sh 'mkdir dist'
                 sh "conan remote add sogilis 'https://api.bintray.com/conan/sogilis/testing'"
-                sh "CONAN_TRACE_FILE=conan.log CONAN_PRINT_RUN_COMMANDS=1 conan install --profile ${config.triple} "+
+                sh "CONAN_TRACE_FILE=\$PWD/conan.log CONAN_PRINT_RUN_COMMANDS=1 conan install --profile ${config.triple} "+
                                  '--build=outdated '+
                                  '--install-folder=$PWD/build '+
                                  '$PWD/source ; cat conan.log'
