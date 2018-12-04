@@ -1,4 +1,5 @@
 #include <QtGlobal> // qWarning
+#include <QAction>
 #include <QSettings>
 #include <QKeySequence>
 #include <QCloseEvent>

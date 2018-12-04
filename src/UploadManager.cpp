@@ -66,7 +66,12 @@ void UploadManager::writePasswordFinished(Job *job)
 
 void UploadManager::readPassword()
 {
-    Q_ASSERT(!_serviceUrl.isEmpty());
+    if(_serviceUrl.isEmpty())
+    {
+        qCritical("Reading password failed: Service URL required");
+        return;
+    }
+
     ReadPasswordJob *job = new ReadPasswordJob(_serviceUrl.toLatin1());
     job->setAutoDelete(true);
     setupPasswordJob(job);
