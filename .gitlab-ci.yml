@@ -16,6 +16,7 @@ stages:
         - mkdir build build/out
         - cd build
         - conan remote add conan-community 'https://api.bintray.com/conan/conan-community/conan' || true
+        - conan remote add conan-henry4k   'https://api.bintray.com/conan/henry4k/conan' || true
         - conan install --install-folder=. ..
         - export PKG_CONFIG_PATH="$PWD" # conan places its pkg-config files there
         - if [ "$(uname -o)" == Cygwin ]; then
