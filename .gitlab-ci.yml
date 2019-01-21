@@ -1,0 +1,91 @@
+#cache:
+#    key: "$CI_JOB_STAGE-$CI_COMMIT_REF_SLUG"
+#    paths:
+#        - build
+
+# ...
+
+stages:
+    - build
+    - test
+    - deploy
+
+.build: &build
+    stage: build
+    script:
+        - mkdir build build/out
+        - cd build
+        - conan remote add conan-community 'https://api.bintray.com/conan/conan-community/conan' || true
+        - conan install --install-folder=. ..
+        - export PKG_CONFIG_PATH="$PWD" # conan places its pkg-config files there
+        - if [ "$(uname -o)" == Cygwin ]; then
+        -   PREFIX="$(cygpath --windows "$PWD/out")"
+        - else
+        -   PREFIX="$PWD/out"
+        - fi
+        - meson --backend ninja --prefix "$PREFIX" -Db_coverage=true ..
+        - ninja
+    artifacts:
+        paths:
+            - build/
+
+#build:windows:
+#    <<: *build
+#    tags: [ windows ]
+#    variables:
+#        VC_ARCH: x64
+#        CLCACHE_LOG: 1
+
+build:linux:
+    <<: *build
+    tags: [ linux ]
+
+.test: &test
+    stage: test
+    script:
+        - cd build
+        - ninja test
+        - ninja coverage-text && cat meson-logs/coverage.txt || true
+    coverage: '/^TOTAL.*?(\d+%)$/'
+
+#test:windows:
+#    <<: *test
+#    tags: [ windows ]
+#    dependencies:
+#        - build:windows
+#    variables:
+#        VC_ARCH: x64
+#        CLCACHE_LOG: 1
+
+test:linux:
+    <<: *test
+    tags: [ linux ]
+    dependencies:
+        - build:linux
+
+.package: &package
+    stage: deploy
+    script:
+        - cd build
+        - ninja install
+    artifacts:
+        paths:
+            - build/out/
+
+#package:windows:
+#    <<: *package
+#    tags: [ windows ]
+#    dependencies:
+#        - build:windows
+#    variables:
+#        VC_ARCH: x64
+#        CLCACHE_LOG: 1
+
+package:linux:
+    <<: *package
+    tags: [ linux ]
+    dependencies:
+        - build:linux
+
+# References:
+# https://gitlab.com/inkscape/inkscape/blob/master/.gitlab-ci.yml
